@@ -1,6 +1,6 @@
 public class Pizza {
     private int price;
-    private int basePrice;
+    protected int basePrice;
     private Boolean isVeg;
     private String bill;
     private int vegBasePrice = 300;
@@ -9,11 +9,10 @@ public class Pizza {
     private boolean isExtraToppings;
     private boolean isTakeaway;
     private BillGenerator billGenerator;
-    private int cheesePrice = 80;
-    private int vegExtraToppingsPrices = 70;
-    private int nonVegExtraToppingsPrices = 120;
+    private CheeseAdder cheeseAdder;
+    private ToppingsAdder toppingsAdder;
+    private int cheesePrice;
     private int takeawayPrice = 20;
-
     private int toppingsPrice;
 
     public Pizza(Boolean isVeg){
@@ -24,8 +23,10 @@ public class Pizza {
         isExtraToppings = false;
         isTakeaway = false;
         this.billGenerator = new BillGeneratorImp();
+        this.cheeseAdder = new CheeseAdderImp();
+        this.toppingsAdder = new ToppingsAdderImp();
     }
-    public Pizza(Boolean isVeg, BillGenerator billGenerator){//dependency Inversion/injection principle
+    public Pizza(Boolean isVeg, BillGenerator billGenerator, CheeseAdder cheeseAdder, ToppingsAdder toppingsAdder){//dependency Inversion/injection principle
         this.isVeg = isVeg;
         basePrice = getBasePrice();
         price = basePrice;
@@ -33,6 +34,8 @@ public class Pizza {
         isExtraToppings = false;
         isTakeaway = false;
         this.billGenerator = billGenerator;
+        this.cheeseAdder  = cheeseAdder;
+        this.toppingsAdder = toppingsAdder;
     }
 
     public int getBasePrice(){
@@ -44,18 +47,17 @@ public class Pizza {
     }
 
     public void addExtraCheese(){
-        if(!isCheeseAdded){
-            isCheeseAdded = true;
-            price += cheesePrice;
-        }
+        int  priceOfCheese= cheeseAdder.addCheese(isCheeseAdded);
+        cheesePrice += priceOfCheese;
+        price += priceOfCheese;
+        isCheeseAdded = true;
     }
 
-    public void addExtraToppings(){
-        if(!isExtraToppings){
-            isExtraToppings = true;
-            toppingsPrice = isVeg ? vegExtraToppingsPrices : nonVegExtraToppingsPrices;
-            price += toppingsPrice;
-        }
+    public void addExtraToppings(){//apply SOLID for addExtraToppings
+        int priceOfToppings = toppingsAdder.addTopping(isExtraToppings,isVeg);
+        toppingsPrice += priceOfToppings;
+        price += priceOfToppings;
+        isExtraToppings = true;
     }
 
     public void addTakeaway(){
@@ -87,14 +89,6 @@ public class Pizza {
 
     public boolean isExtraToppings() {
         return isExtraToppings;
-    }
-
-    public int getVegExtraToppingsPrices() {
-        return vegExtraToppingsPrices;
-    }
-
-    public int getNonVegExtraToppingsPrices() {
-        return nonVegExtraToppingsPrices;
     }
 
     public boolean isTakeaway() {

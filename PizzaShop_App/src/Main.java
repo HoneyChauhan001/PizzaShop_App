@@ -7,7 +7,7 @@ public class Main {
         dp.addTakeaway();
         System.out.println(dp.getBill());
 
-        Pizza p = new Pizza(true,new BillGeneratorImp2());
+        Pizza p = new Pizza(true,new BillGeneratorImp2(),new CheeseAdderImp(), new ToppingsAdderImp());
         System.out.println(p.getPrice());
         p.addExtraCheese();
         p.addExtraToppings();
